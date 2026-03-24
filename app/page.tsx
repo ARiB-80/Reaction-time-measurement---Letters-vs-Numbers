@@ -1,65 +1,134 @@
-import Image from "next/image";
+"use client";
+
+import { useState, useEffect, useCallback, useRef } from "react";
+import HUD, { type HUDHandle, type ReactionStats } from "@/components/HUD";
+import IdleScreen from "@/components/IdleScreen";
+import Stimulus, { type StimulusSymbol } from "@/components/Stimulus";
+import GameOverScreen from "@/components/GameOverScreen";
+
+type GameState = "idle" | "playing" | "gameover";
 
 export default function Home() {
+  const [gameState, setGameState] = useState<GameState>("idle");
+  const [triggerNext, setTriggerNext] = useState(0);
+  const [feedback, setFeedback] = useState<"correct" | "wrong" | null>(null);
+  const [finalScore, setFinalScore] = useState(0);
+  const [stats, setStats] = useState<ReactionStats | null>(null);
+
+  const hudRef = useRef<HUDHandle>(null);
+  const feedbackTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const currentSymbol = useRef<StimulusSymbol | null>(null);
+  const symbolShownAt = useRef<number | null>(null);
+
+  const showFeedback = (type: "correct" | "wrong") => {
+    if (feedbackTimer.current) clearTimeout(feedbackTimer.current);
+    setFeedback(type);
+    feedbackTimer.current = setTimeout(() => setFeedback(null), 400);
+  };
+
+  const handleSymbolReady = (symbol: StimulusSymbol, shownAt: number) => {
+    currentSymbol.current = symbol;
+    symbolShownAt.current = shownAt;
+  };
+
+  const nextSymbol = useCallback(() => {
+    setTriggerNext((n) => n + 1);
+  }, []);
+
+  const endGame = useCallback(() => {
+    setFinalScore(hudRef.current?.getScore() ?? 0);
+    setStats(hudRef.current?.getStats() ?? null);
+    setGameState("gameover");
+  }, []);
+
+  const startGame = useCallback(() => {
+    hudRef.current?.reset();
+    setFeedback(null);
+    setTriggerNext(0);
+    setGameState("playing");
+  }, []);
+
+  const handleKey = useCallback(
+    (key: string) => {
+      if (gameState === "idle" && key === " ") {
+        startGame();
+        return;
+      }
+
+      if (gameState !== "playing" || !currentSymbol.current) return;
+
+      const pressed = key.toUpperCase();
+      if (pressed !== "A" && pressed !== "L") return;
+
+      const symbol = currentSymbol.current;
+      const isCorrect =
+        (pressed === "A" && symbol.type === "letter") ||
+        (pressed === "L" && symbol.type === "number");
+
+      if (isCorrect) {
+        const rt =
+          symbolShownAt.current !== null
+            ? performance.now() - symbolShownAt.current
+            : null;
+        if (rt !== null) hudRef.current?.registerCorrect(rt);
+        showFeedback("correct");
+        nextSymbol();
+      } else {
+        showFeedback("wrong");
+        const newLives = hudRef.current?.registerWrong() ?? 0;
+        if (newLives <= 0) {
+          endGame();
+        } else {
+          nextSymbol();
+        }
+      }
+    },
+    [gameState, nextSymbol, endGame, startGame],
+  );
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === " ") e.preventDefault();
+      handleKey(e.key);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [handleKey]);
+
+  useEffect(() => {
+    return () => {
+      if (feedbackTimer.current) clearTimeout(feedbackTimer.current);
+    };
+  }, []);
+
+  const bgColor =
+    feedback === "correct"
+      ? "bg-green-900"
+      : feedback === "wrong"
+        ? "bg-red-900"
+        : "bg-gray-950";
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+    <main
+      className={`min-h-screen flex flex-col items-center justify-center py-20 transition-colors duration-150 ${bgColor}`}
+    >
+      <HUD ref={hudRef} isPlaying={gameState === "playing"} />
+
+      <div className="flex flex-col items-center gap-8 w-full max-w-2xl px-4">
+        {gameState === "idle" && <IdleScreen onStart={startGame} />}
+
+        {gameState === "playing" && (
+          <Stimulus
+            triggerNext={triggerNext}
+            onSymbolReady={handleSymbolReady}
+            onEndGame={endGame}
+          />
+        )}
+
+        {gameState === "gameover" && (
+          <GameOverScreen score={finalScore} stats={stats} onPlayAgain={startGame} />
+        )}
+      </div>
+    </main>
   );
 }
