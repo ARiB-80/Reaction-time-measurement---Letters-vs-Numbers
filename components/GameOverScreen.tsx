@@ -4,6 +4,39 @@ import { useEffect, useState } from "react";
 import { type ReactionStats } from "@/components/HUD";
 import SessionGraph, { type SessionRecord } from "@/components/SessionGraph";
 
+const STORAGE_KEY = "reaction_game_sessions";
+
+function loadSessions(): SessionRecord[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveSession(session: SessionRecord) {
+  const sessions = loadSessions();
+  sessions.push(session);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(sessions));
+}
+
+function downloadCSV(sessions: SessionRecord[]) {
+  const headers = ["Session", "Date", "Time", "Score", "Avg RT (ms)", "Min RT (ms)", "Max RT (ms)"];
+  const rows = sessions.map((s) => [
+    s.Session, s.Date, s.Time, s.Score,
+    s["Avg RT (ms)"], s["Min RT (ms)"], s["Max RT (ms)"],
+  ]);
+  const csv = [headers, ...rows].map((r) => r.join(",")).join("\n");
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "reaction_times.csv";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 interface GameOverScreenProps {
   score: number;
   stats: ReactionStats | null;
@@ -14,27 +47,20 @@ export default function GameOverScreen({ score, stats, onPlayAgain }: GameOverSc
   const [sessions, setSessions] = useState<SessionRecord[]>([]);
 
   useEffect(() => {
-    const saveAndFetch = async () => {
-      // Only save if there were correct answers to record
-      if (stats) {
-        await fetch("/api/sessions", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            score,
-            avgRT: stats.avg,
-            minRT: stats.min,
-            maxRT: stats.max,
-          }),
-        });
-      }
-
-      const res = await fetch("/api/sessions");
-      const data = await res.json();
-      setSessions(data);
-    };
-
-    saveAndFetch();
+    if (stats) {
+      const existing = loadSessions();
+      const newSession: SessionRecord = {
+        Session: existing.length + 1,
+        Date: new Date().toLocaleDateString(),
+        Time: new Date().toLocaleTimeString(),
+        Score: score,
+        "Avg RT (ms)": stats.avg,
+        "Min RT (ms)": stats.min,
+        "Max RT (ms)": stats.max,
+      };
+      saveSession(newSession);
+    }
+    setSessions(loadSessions());
   // Runs once when the game over screen mounts
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -77,12 +103,23 @@ export default function GameOverScreen({ score, stats, onPlayAgain }: GameOverSc
             Reaction Time History
           </h3>
           <SessionGraph sessions={sessions} />
-          <a
-            href="/api/sessions?download=true"
-            className="inline-block mt-3 text-xs text-gray-500 hover:text-gray-300 underline transition-colors"
-          >
-            Download Spreadsheet (.xlsx)
-          </a>
+          <div className="mt-3 flex gap-4 justify-center">
+            <button
+              onClick={() => downloadCSV(sessions)}
+              className="text-xs text-gray-500 hover:text-gray-300 underline transition-colors cursor-pointer"
+            >
+              Download CSV
+            </button>
+            <button
+              onClick={() => {
+                localStorage.removeItem(STORAGE_KEY);
+                setSessions([]);
+              }}
+              className="text-xs text-red-700 hover:text-red-400 underline transition-colors cursor-pointer"
+            >
+              Clear History
+            </button>
+          </div>
         </div>
       )}
 
