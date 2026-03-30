@@ -58,35 +58,35 @@ export default function Stimulus({
     <>
       <div
         className={`text-[10rem] font-extrabold select-none leading-none transition-colors duration-100 ${
-          symbol.type === "letter" ? "text-blue-400" : "text-orange-400"
+          symbol.type === "letter" ? "text-violet-600" : "text-gray-900"
         }`}
       >
         {symbol.value}
       </div>
 
-      <p className="text-gray-500 text-sm tracking-widest uppercase">
-        {symbol.type === "letter" ? "→ Press A" : "→ Press L"}
+      <p className="text-gray-400 text-xs tracking-widest uppercase">
+        {symbol.type === "letter" ? "→ press A" : "→ press L"}
       </p>
 
       <button
         onClick={onEndGame}
-        className="mt-8 bg-red-700 hover:bg-red-600 text-white font-semibold px-6 py-2 rounded-xl transition-colors cursor-pointer"
+        className="mt-8 border border-gray-300 text-gray-500 hover:border-gray-400 hover:text-gray-700 text-sm px-5 py-1.5 rounded-sm transition-colors cursor-pointer"
       >
-        End Game
+        end game
       </button>
 
-      <div className="absolute bottom-6 flex gap-8 text-gray-500 text-sm">
+      <div className="absolute bottom-6 flex gap-8 text-gray-400 text-xs">
         <span>
-          <kbd className="bg-gray-800 text-gray-300 px-2 py-0.5 rounded font-mono">
+          <kbd className="bg-gray-100 text-gray-600 border border-gray-200 px-1.5 py-0.5 rounded-sm font-mono">
             A
           </kbd>{" "}
-          = Letter
+          = letter
         </span>
         <span>
-          <kbd className="bg-gray-800 text-gray-300 px-2 py-0.5 rounded font-mono">
+          <kbd className="bg-gray-100 text-gray-600 border border-gray-200 px-1.5 py-0.5 rounded-sm font-mono">
             L
           </kbd>{" "}
-          = Number
+          = number
         </span>
       </div>
     </>

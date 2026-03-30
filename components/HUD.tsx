@@ -66,22 +66,22 @@ const HUD = forwardRef<HUDHandle, HUDProps>(function HUD({ isPlaying }, ref) {
 
   return (
     <div className="absolute top-6 left-0 right-0 flex justify-between items-center px-10">
-      <div className="text-white text-xl font-semibold">
-        Score:{" "}
-        <span className="text-yellow-400 font-bold text-2xl">{score}</span>
+      <div className="text-gray-500 text-sm">
+        score{" "}
+        <span className="text-violet-600 font-bold text-xl">{score}</span>
       </div>
 
       {isPlaying && lastReaction !== null && (
-        <div className="text-gray-400 text-sm text-center">
-          <span className="text-white font-semibold">{lastReaction} ms</span>
+        <div className="text-gray-400 text-xs text-center">
+          <span className="text-gray-800 font-semibold">{lastReaction} ms</span>
           <br />
           last reaction
         </div>
       )}
 
-      <div className="flex gap-2 text-2xl">
+      <div className="flex gap-1 text-sm text-gray-400">
         {Array.from({ length: 3 }).map((_, i) => (
-          <span key={i}>{i < lives ? "❤️" : "🖤"}</span>
+          <span key={i} className={i < lives ? "text-violet-600" : "text-gray-200"}>■</span>
         ))}
       </div>
     </div>

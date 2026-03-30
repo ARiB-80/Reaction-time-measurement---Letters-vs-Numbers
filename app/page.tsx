@@ -103,10 +103,10 @@ export default function Home() {
 
   const bgColor =
     feedback === "correct"
-      ? "bg-green-900"
+      ? "bg-violet-50"
       : feedback === "wrong"
-        ? "bg-red-900"
-        : "bg-gray-950";
+        ? "bg-red-50"
+        : "bg-gray-50";
 
   return (
     <main

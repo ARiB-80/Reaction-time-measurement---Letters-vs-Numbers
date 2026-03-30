@@ -67,57 +67,57 @@ export default function GameOverScreen({ score, stats, onPlayAgain }: GameOverSc
 
   return (
     <div className="text-center space-y-6 w-full max-w-2xl px-6">
-      <h2 className="text-5xl font-bold text-white">Game Over</h2>
+      <h2 className="text-5xl font-bold text-gray-900 tracking-tight">game over</h2>
 
-      <p className="text-gray-300 text-2xl">
-        Final Score:{" "}
-        <span className="text-yellow-400 font-bold text-4xl">{score}</span>
+      <p className="text-gray-500 text-base">
+        final score{" "}
+        <span className="text-violet-600 font-bold text-4xl">{score}</span>
       </p>
 
       {stats ? (
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-3 gap-3">
           {[
-            { label: "Avg", value: stats.avg, color: "text-blue-400" },
-            { label: "Min", value: stats.min, color: "text-green-400" },
-            { label: "Max", value: stats.max, color: "text-red-400" },
-          ].map(({ label, value, color }) => (
+            { label: "avg", value: stats.avg },
+            { label: "min", value: stats.min },
+            { label: "max", value: stats.max },
+          ].map(({ label, value }) => (
             <div
               key={label}
-              className="bg-gray-800 rounded-2xl px-6 py-4 flex flex-col items-center gap-1"
+              className="bg-white border border-gray-200 rounded-sm px-6 py-4 flex flex-col items-center gap-1"
             >
-              <span className="text-gray-400 text-sm uppercase tracking-widest">
+              <span className="text-gray-400 text-xs uppercase tracking-widest">
                 {label}
               </span>
-              <span className={`${color} font-bold text-3xl`}>{value}</span>
-              <span className="text-gray-500 text-xs">ms</span>
+              <span className="text-violet-600 font-bold text-3xl">{value}</span>
+              <span className="text-gray-400 text-xs">ms</span>
             </div>
           ))}
         </div>
       ) : (
-        <p className="text-gray-500 text-sm">No correct answers recorded.</p>
+        <p className="text-gray-400 text-sm">no correct answers recorded.</p>
       )}
 
       {sessions.length > 0 && (
-        <div className="bg-gray-900 rounded-2xl p-4">
-          <h3 className="text-white text-base font-semibold mb-2 text-left">
-            Reaction Time History
+        <div className="bg-white border border-gray-200 rounded-sm p-4">
+          <h3 className="text-gray-700 text-sm font-semibold mb-2 text-left tracking-wide">
+            reaction time history
           </h3>
           <SessionGraph sessions={sessions} />
           <div className="mt-3 flex gap-4 justify-center">
             <button
               onClick={() => downloadCSV(sessions)}
-              className="text-xs text-gray-500 hover:text-gray-300 underline transition-colors cursor-pointer"
+              className="text-xs text-gray-400 hover:text-gray-600 underline transition-colors cursor-pointer"
             >
-              Download CSV
+              download csv
             </button>
             <button
               onClick={() => {
                 localStorage.removeItem(STORAGE_KEY);
                 setSessions([]);
               }}
-              className="text-xs text-red-700 hover:text-red-400 underline transition-colors cursor-pointer"
+              className="text-xs text-red-400 hover:text-red-600 underline transition-colors cursor-pointer"
             >
-              Clear History
+              clear history
             </button>
           </div>
         </div>
@@ -125,9 +125,9 @@ export default function GameOverScreen({ score, stats, onPlayAgain }: GameOverSc
 
       <button
         onClick={onPlayAgain}
-        className="bg-white text-gray-900 font-bold text-xl px-10 py-4 rounded-2xl hover:bg-gray-200 active:scale-95 transition-all cursor-pointer"
+        className="bg-violet-600 text-white font-semibold text-base px-8 py-3 rounded-sm hover:bg-violet-700 active:scale-95 transition-all cursor-pointer"
       >
-        Play Again
+        play again
       </button>
     </div>
   );

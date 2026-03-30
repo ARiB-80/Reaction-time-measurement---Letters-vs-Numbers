@@ -27,33 +27,82 @@ interface SessionGraphProps {
 
 export default function SessionGraph({ sessions }: SessionGraphProps) {
   return (
-    <ResponsiveContainer width="100%" height={260}>
-      <LineChart data={sessions} margin={{ top: 5, right: 16, left: 0, bottom: 20 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-        <XAxis
-          dataKey="Session"
-          stroke="#6B7280"
-          tick={{ fill: "#9CA3AF", fontSize: 12 }}
-          label={{ value: "Session #", position: "insideBottom", offset: -12, fill: "#6B7280", fontSize: 12 }}
-        />
-        <YAxis
-          stroke="#6B7280"
-          tick={{ fill: "#9CA3AF", fontSize: 12 }}
-          label={{ value: "ms", angle: -90, position: "insideLeft", offset: 10, fill: "#6B7280", fontSize: 12 }}
-        />
-        <Tooltip
-          contentStyle={{
-            backgroundColor: "#111827",
-            border: "1px solid #374151",
-            borderRadius: "8px",
-            color: "#F9FAFB",
-          }}
-        />
-        <Legend wrapperStyle={{ color: "#9CA3AF", fontSize: 13, paddingTop: "8px" }} />
-        <Line type="monotone" dataKey="Avg RT (ms)" stroke="#60A5FA" strokeWidth={2} dot={{ fill: "#60A5FA", r: 4 }} activeDot={{ r: 6 }} />
-        <Line type="monotone" dataKey="Min RT (ms)" stroke="#34D399" strokeWidth={2} dot={{ fill: "#34D399", r: 4 }} activeDot={{ r: 6 }} />
-        <Line type="monotone" dataKey="Max RT (ms)" stroke="#F87171" strokeWidth={2} dot={{ fill: "#F87171", r: 4 }} activeDot={{ r: 6 }} />
-      </LineChart>
-    </ResponsiveContainer>
+    <div className="relative">
+      {/* <span className="absolute top-1 right-2 text-xs text-gray-400 z-10">
+        session <span className="text-violet-600 font-semibold">#{sessions.length}</span>
+      </span> */}
+      <ResponsiveContainer width="100%" height={260}>
+        <LineChart
+          data={sessions}
+          margin={{ top: 5, right: 16, left: 0, bottom: 20 }}
+        >
+          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+          <XAxis
+            dataKey="Session"
+            stroke="#d1d5db"
+            tick={{ fill: "#9ca3af", fontSize: 11 }}
+            label={{
+              value: "Session #",
+              position: "insideBottom",
+              offset: -12,
+              fill: "#9ca3af",
+              fontSize: 11,
+            }}
+          />
+          <YAxis
+            stroke="#d1d5db"
+            tick={{ fill: "#9ca3af", fontSize: 11 }}
+            label={{
+              value: "ms",
+              angle: -90,
+              position: "insideLeft",
+              offset: 10,
+              fill: "#9ca3af",
+              fontSize: 11,
+            }}
+          />
+          <Tooltip
+            contentStyle={{
+              backgroundColor: "#ffffff",
+              border: "1px solid #e5e7eb",
+              borderRadius: "2px",
+              color: "#111111",
+              fontSize: 12,
+            }}
+          />
+          <Legend
+            wrapperStyle={{
+              color: "#6b7280",
+              fontSize: 12,
+              paddingTop: "20px",
+            }}
+          />
+          <Line
+            type="monotone"
+            dataKey="Avg RT (ms)"
+            stroke="#7c3aed"
+            strokeWidth={2}
+            dot={{ fill: "#7c3aed", r: 3 }}
+            activeDot={{ r: 5 }}
+          />
+          <Line
+            type="monotone"
+            dataKey="Min RT (ms)"
+            stroke="#a78bfa"
+            strokeWidth={2}
+            dot={{ fill: "#a78bfa", r: 3 }}
+            activeDot={{ r: 5 }}
+          />
+          <Line
+            type="monotone"
+            dataKey="Max RT (ms)"
+            stroke="#c4b5fd"
+            strokeWidth={2}
+            dot={{ fill: "#c4b5fd", r: 3 }}
+            activeDot={{ r: 5 }}
+          />
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
   );
 }
